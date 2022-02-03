@@ -43,5 +43,9 @@ app.use(middleware.authJwt.verifyToken);
 require('./routes/client.routes')(app);
 require('./routes/group.routes')(app);
 
+// get the current time to display on restarts of the server
+var currentDateTime = new Date();
+var currentTime = currentDateTime.getUTCHours() + ':' + currentDateTime.getUTCMinutes();
+
 // set port, listen for requests
-app.listen(apiPort, () => console.log(`Server running on port ${apiPort} in environment ${process.env.NODE_ENV || 'dev'}`))
+app.listen(apiPort, () => console.log(`Server running on port ${apiPort} in environment ${process.env.NODE_ENV || 'dev'} @ ${currentTime}`))

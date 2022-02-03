@@ -3,6 +3,9 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
+      minHeight: {
+        '96': '40rem'
+      },
       colors: {
         purple: {
           brand: '#7025ffff'

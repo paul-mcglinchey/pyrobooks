@@ -21,22 +21,44 @@ exports.maxNumberOfPages = (req, res) => {
 }
 
 // Retrieve all clients from the database
-exports.findAll = (req, res, next) => {
-  Group.findOne({ groupname: req.query.groupname })
-    .then(group => {
+exports.findAll = async (req, res, next) => {
+
+  let { pageSize, pageNumber, groupname } = await req.query;
+
+  pageSize = parseInt(pageSize);
+  pageNumber = parseInt(pageNumber);
+
+  Group.findOne({ groupname: groupname })
+    .then(async (group) => {
+
+      // all the clients that belong to the requested group
       let clientIds = group.clients;
-      Client.find({ _id: { $in: clientIds } })
-        .then(clients => {
-          res.status(200).send({
-            clients: clients
-          })
-        })
-        .catch(err => {
-          res.status(500).send({
-            message:
-              err.message || 'A problem occurred fetching clients.'
-          })
-        })
+
+      // the mongoose query to fetch those clients
+      let clientQuery = { _id: { $in: clientIds } };
+
+      const clientCount = await Client
+        .countDocuments(clientQuery)
+        .then(clientCount => clientCount)
+        .catch(err => res.status(500)
+          .send({
+            message: err.message || `A problem occurred fetching the number of clients for group ${groupname}.`
+          }));
+
+      const clients = await Client
+        .find(clientQuery)
+        .skip(((pageNumber || 1) - 1) * pageSize)
+        .limit(parseInt(pageSize))
+        .then(clients => clients)
+        .catch(err => res.status(500)
+          .send({
+            message: err.message || `A problem occurred fetching the list of clients for group ${groupname}.`
+          }))
+
+      res.status(200).send({
+        totalClients: clientCount,
+        clients: clients
+      });
     })
     .catch(err => {
       res.status(401).send({

@@ -49,7 +49,7 @@ export default function App() {
   activeLinkHelper.setActiveLink(location);
 
   return (
-    <div>
+    <div className="min-h-screen">
       {Userfront.accessToken() && (
         <NavMenu />
       )}

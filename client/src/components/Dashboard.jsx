@@ -2,6 +2,7 @@ import { Fragment, React } from 'react';
 
 import { ClientList, Fetch, Toolbar, GroupPrompter } from '.';
 import { useFetch, endpoints, requestHelper } from '../utilities';
+import Paginator from './Common/Paginator';
 
 const Dashboard = ({ userGroup, setUserGroup, status, setStatus }) => {
 
@@ -9,7 +10,7 @@ const Dashboard = ({ userGroup, setUserGroup, status, setStatus }) => {
     <Fetch
       fetchOutput={useFetch(endpoints.groupcount, requestHelper.requestBuilder("GET"))}
       render={({ response, isLoading }) => (
-        <div>
+        <Fragment>
           {Number.isInteger(response.count) && (
             response.count > 0 ? (
               <Fragment>
@@ -20,10 +21,10 @@ const Dashboard = ({ userGroup, setUserGroup, status, setStatus }) => {
                 />
               </Fragment>
             ) : (
-                <GroupPrompter />
+              <GroupPrompter />
             )
           )}
-        </div>
+        </Fragment>
       )}
     />
   )

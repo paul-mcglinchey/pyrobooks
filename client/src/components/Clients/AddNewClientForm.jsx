@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Formik, Form } from "formik";
+import Userfront from '@userfront/core';
 import { Transition } from "@headlessui/react";
 import { SelectorIcon } from "@heroicons/react/solid";
 import { StyledField, StyledDatePicker, CustomCheckbox, CustomDate } from "..";
@@ -32,6 +33,7 @@ const AddNewClientForm = ({ userGroup, status, setStatus }) => {
     }
 
     values.groupname = userGroup && userGroup.groupname;
+    values.createdBy = values.updatedBy = Userfront.user.username;
 
     await fetch((endpoints.clients), requestHelper.requestBuilder('POST', values))
       .then(res => {

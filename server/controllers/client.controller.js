@@ -60,7 +60,8 @@ exports.create = (req, res) => {
     firstName, lastName, middleNames,
     addressLineOne, addressLineTwo, addressLineThree, city, country, postCode,
     birthdate,
-    email, phoneNumber, emails, phoneNumbers
+    email, phoneNumber, emails, phoneNumbers,
+    createdBy, updatedBy
   } = req.body;
 
   console.log(req.auth);
@@ -88,8 +89,14 @@ exports.create = (req, res) => {
       phoneNumbers: phoneNumbers
     },
     sessions: [],
-    createdBy: req.auth.userUuid,
-    updatedBy: req.auth.userUuid
+    createdBy: {
+      uuid: req.auth.userUuid,
+      name: createdBy
+    },
+    updatedBy: {
+      uuid: req.auth.userUuid,
+      name: updatedBy
+    }
   });
 
   // Save client in the database

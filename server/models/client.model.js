@@ -1,5 +1,6 @@
 const { Schema } = require('mongoose');
 const mongoose = require('mongoose');
+const GUID = require('mongoose-guid')(mongoose);
 
 const NameSchema = new Schema({
   firstName: { type: String, trim: true, required: true },
@@ -43,7 +44,9 @@ const Client = mongoose.model(
     address: AddressSchema,
     birthdate: { type: Date, required: true },
     contactInfo: ContactInfoSchema,
-    sessions: [SessionSchema]
+    sessions: [SessionSchema],
+    createdBy: { type: String },
+    updatedBy: { type: String }
   }, { timestamps: true })
 );
 

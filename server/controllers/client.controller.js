@@ -4,21 +4,6 @@ const Group = db.group;
 const Client = db.client;
 
 // Read operations
-// Get the maximum number of pages of clients
-exports.maxNumberOfPages = (req, res) => {
-  Client.find({})
-    .then(data => {
-      res.send({
-        maxPagesClients: Math.floor(data.length / 10)
-      })
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || 'Some error occured while retrieving number of clients.'
-      })
-    })
-}
 
 // Retrieve all clients from the database
 exports.findAll = async (req, res, next) => {
@@ -78,6 +63,8 @@ exports.create = (req, res) => {
     email, phoneNumber, emails, phoneNumbers
   } = req.body;
 
+  console.log(req.auth);
+
   // Create a new client
   const client = new Client({
     clientName: {
@@ -100,7 +87,9 @@ exports.create = (req, res) => {
       emails: emails,
       phoneNumbers: phoneNumbers
     },
-    sessions: []
+    sessions: [],
+    createdBy: req.auth.userUuid,
+    updatedBy: req.auth.userUuid
   });
 
   // Save client in the database

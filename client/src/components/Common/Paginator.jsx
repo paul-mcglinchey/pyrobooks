@@ -26,30 +26,28 @@ const Paginator = ({ pageSize, pageNumber, setPageNumber, setPageSize, totalClie
   ]
 
   return (
-    <div className="flex justify-between text-gray-400 py-4">
-      <div className="font-semibold tracking-wider">
+    <div className="flex justify-between text-gray-400 py-4 items-center">
+      <div className="font-semibold tracking-wider pb-1">
         {totalClients} clients
       </div>
-      <div className="flex space-x-8">
-        <div className="flex items-center">
-          {pageSizes.map((ps, i) => (
-            <button
-              className={`px-2 pb-1 font-semibold hover:text-gray-200 ${ps === pageSize ? 'text-gray-200' : 'text-gray-600'}`}
-              onClick={() => updatePageSize(ps)}
-              key={i}>
-              {ps}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center">
-          {!isMinPage() && (
-            <div><SquareIconButton Icon={ChevronLeftIcon} action={decrementPageNumber} additionalClasses={!isMinPage() && 'hover:text-gray-200'} /></div>
-          )}
-          <div className={`pb-1 font-bold ${isMinPage() && 'pl-12'} ${isMaxPage() && 'pr-12'}`}>{pageNumber}</div>
-          {!isMaxPage() && (
-            <div><SquareIconButton Icon={ChevronRightIcon} action={incrementPageNumber} additionalClasses={!isMaxPage() && 'hover:text-gray-200'} /></div>
-          )}
-        </div>
+      <div className="flex items-center">
+        {!isMinPage() && (
+          <div><SquareIconButton Icon={ChevronLeftIcon} action={decrementPageNumber} additionalClasses={!isMinPage() && 'hover:text-gray-200'} /></div>
+        )}
+        <div className={`pb-1 font-bold tracking-wide ${isMinPage() && 'pl-12'} ${isMaxPage() && 'pr-12'}`}>{pageNumber} of {Math.ceil(totalClients / pageSize)}</div>
+        {!isMaxPage() && (
+          <div><SquareIconButton Icon={ChevronRightIcon} action={incrementPageNumber} additionalClasses={!isMaxPage() && 'hover:text-gray-200'} /></div>
+        )}
+      </div>
+      <div className="flex items-center">
+        {pageSizes.map((ps, i) => (
+          <button
+            className={`px-2 pb-1 font-semibold hover:text-gray-200 ${ps === pageSize ? 'text-gray-200' : 'text-gray-600'}`}
+            onClick={() => updatePageSize(ps)}
+            key={i}>
+            {ps}
+          </button>
+        ))}
       </div>
     </div>
   )

@@ -2,7 +2,6 @@ import { Fragment, React } from 'react';
 
 import { ClientList, Fetch, Toolbar, GroupPrompter } from '.';
 import { useFetch, endpoints, requestHelper } from '../utilities';
-import Paginator from './Common/Paginator';
 
 const Dashboard = ({ userGroup, setUserGroup, status, setStatus }) => {
 

@@ -1,15 +1,19 @@
+const colors = require('./node_modules/tailwindcss/colors');
+
 module.exports = {
   purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
+      colors: {
+        zinc: colors.zinc,
+        slate: colors.slate,
+        neutral: colors.neutral,
+        gray: colors.gray,
+        stone: colors.stone,
+      },
       minHeight: {
         '96': '40rem'
-      },
-      colors: {
-        purple: {
-          brand: '#7025ffff'
-        }
       },
       scale: {
         '102': '1.02',

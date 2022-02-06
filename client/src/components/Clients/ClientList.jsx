@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Fetch, ClientEntry, SpinnerIcon, ClientPrompter, SquareIconButton } from '..';
 import { endpoints, useFetch, requestHelper } from '../../utilities';
 import { Paginator, Selector } from '..';
+import ClientRow from './ClientRow';
+import { Header } from './Table';
 
 const filterOptions = [
   { label: 'Name', value: 'name' },
@@ -38,17 +40,29 @@ const ClientList = ({ userGroup }) => {
                 <SearchIcon className="w-6 h-6" />
               </div>
             </div>
-            {response && response.clients && (
-              response.totalClients > 0 ? (
-                response.clients.map((c) => {
-                  return (
-                    <ClientEntry c={c} key={c._id} userGroup={userGroup} />
-                  )
-                })
-              ) : (
-                <ClientPrompter />
-              )
-            )}
+            <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-md">
+              <table className="min-w-full divide-y divide-gray-900">
+                <thead className="bg-gray-900">
+                  <tr>
+                    <Header>Name</Header>
+                    <Header>Last updated</Header>
+                    <Header>Sessions</Header>
+                    <Header>Options</Header>
+                  </tr>
+                </thead>
+                <tbody className="bg-gray-200 divide-y divide-gray-900">
+                  {response && response.clients && (
+                    response.totalClients > 0 ? (
+                      response.clients.map((c) => (
+                        <ClientRow client={c} key={c._id} userGroup={userGroup} />
+                      ))
+                    ) : (
+                      <ClientPrompter />
+                    )
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
           {response && !isLoading && (
             <Paginator pageNumber={pageNumber} pageSize={pageSize} setPageNumber={setPageNumber} setPageSize={setPageSize} totalClients={response.totalClients} />

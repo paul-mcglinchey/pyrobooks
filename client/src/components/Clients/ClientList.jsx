@@ -42,7 +42,7 @@ const ClientList = ({ userGroup }) => {
             </div>
             <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-md">
               <table className="min-w-full divide-y divide-gray-900">
-                <thead className="bg-gray-900">
+                <thead className="bg-zinc-900">
                   <tr>
                     <Header>Name</Header>
                     <Header>Last updated</Header>
@@ -50,7 +50,7 @@ const ClientList = ({ userGroup }) => {
                     <Header>Options</Header>
                   </tr>
                 </thead>
-                <tbody className="bg-gray-200 divide-y divide-gray-900">
+                <tbody className="bg-zinc-200 divide-y divide-gray-900">
                   {response && response.clients && (
                     response.totalClients > 0 ? (
                       response.clients.map((c) => (

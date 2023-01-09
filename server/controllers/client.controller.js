@@ -4,39 +4,46 @@ const Group = db.group;
 const Client = db.client;
 
 // Read operations
-// Get the maximum number of pages of clients
-exports.maxNumberOfPages = (req, res) => {
-  Client.find({})
-    .then(data => {
-      res.send({
-        maxPagesClients: Math.floor(data.length / 10)
-      })
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || 'Some error occured while retrieving number of clients.'
-      })
-    })
-}
 
 // Retrieve all clients from the database
-exports.findAll = (req, res, next) => {
-  Group.findOne({ groupname: req.query.userGroup })
-    .then(group => {
+exports.findAll = async (req, res, next) => {
+
+  let { pageSize, pageNumber, groupname } = await req.query;
+
+  pageSize = parseInt(pageSize);
+  pageNumber = parseInt(pageNumber);
+
+  Group.findOne({ groupname: groupname })
+    .then(async (group) => {
+
+      // all the clients that belong to the requested group
       let clientIds = group.clients;
-      Client.find({ _id: { $in: clientIds } })
-        .then(clients => {
-          res.status(200).send({
-            data: clients
-          })
-        })
-        .catch(err => {
-          res.status(500).send({
-            message:
-              err.message || 'A problem occurred fetching clients.'
-          })
-        })
+
+      // the mongoose query to fetch those clients
+      let clientQuery = { _id: { $in: clientIds } };
+
+      const clientCount = await Client
+        .countDocuments(clientQuery)
+        .then(clientCount => clientCount)
+        .catch(err => res.status(500)
+          .send({
+            message: err.message || `A problem occurred fetching the number of clients for group ${groupname}.`
+          }));
+
+      const clients = await Client
+        .find(clientQuery)
+        .skip(((pageNumber || 1) - 1) * pageSize)
+        .limit(parseInt(pageSize))
+        .then(clients => clients)
+        .catch(err => res.status(500)
+          .send({
+            message: err.message || `A problem occurred fetching the list of clients for group ${groupname}.`
+          }))
+
+      res.status(200).send({
+        totalClients: clientCount,
+        clients: clients
+      });
     })
     .catch(err => {
       res.status(401).send({
@@ -49,29 +56,47 @@ exports.findAll = (req, res, next) => {
 // CUD Operations
 // Create and save a new client
 exports.create = (req, res) => {
+  const {
+    firstName, lastName, middleNames,
+    addressLineOne, addressLineTwo, addressLineThree, city, country, postCode,
+    birthdate,
+    email, phoneNumber, emails, phoneNumbers,
+    createdBy, updatedBy
+  } = req.body;
+
+  console.log(req.auth);
+
   // Create a new client
   const client = new Client({
     clientName: {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      middleNames: req.body.middleNames.split(" ")
+      firstName: firstName,
+      lastName: lastName,
+      middleNames: middleNames.split(" ")
     },
     address: {
-      firstLine: req.body.addressLineOne,
-      secondLine: req.body.addressLineTwo,
-      thirdLine: req.body.addressLineThree,
-      city: req.body.city,
-      country: req.body.country,
-      postCode: req.body.postCode
+      firstLine: addressLineOne,
+      secondLine: addressLineTwo,
+      thirdLine: addressLineThree,
+      city: city,
+      country: country,
+      postCode: postCode
     },
-    birthdate: req.body.birthdate,
-    contactinfo: {
-      primaryEmail: req.body.email,
-      primaryPhoneNumber: req.body.phoneNumber,
-      emails: req.body.emails,
-      phoneNumbers: req.body.phoneNumbers
+    birthdate: birthdate,
+    contactInfo: {
+      primaryEmail: email,
+      primaryPhoneNumber: phoneNumber,
+      emails: emails,
+      phoneNumbers: phoneNumbers
     },
-    sessions: []
+    sessions: [],
+    createdBy: {
+      uuid: req.auth.userUuid,
+      name: createdBy
+    },
+    updatedBy: {
+      uuid: req.auth.userUuid,
+      name: updatedBy
+    }
   });
 
   // Save client in the database
@@ -79,10 +104,10 @@ exports.create = (req, res) => {
     .save(client)
     .then(data => {
       // Add the client to the group which was selected
-      Group.updateOne({ groupname: req.body.userGroup }, { $push: { clients: new ObjectId(data._id) } })
+      Group.updateOne({ groupname: req.body.groupname }, { $push: { clients: new ObjectId(data._id) } })
         .then(() => {
           res.status(200).send({
-            success: 'Client created successfully.'
+            success: `Client created successfully in ${req.body.groupname}.`
           })
         })
         .catch(err => {
@@ -103,11 +128,13 @@ exports.create = (req, res) => {
 // Update a client's sessions
 exports.addSession = (req, res) => {
 
+  const { title, description, notes, date } = req.body;
+
   const newSession = {
-    title: req.body.title,
-    description: req.body.description,
-    notes: req.body.notes,
-    date: req.body.date
+    title: title,
+    description: description,
+    notes: notes,
+    date: date
   };
 
   Client.findOneAndUpdate({ _id: req.body._id }, { $push: { sessions: newSession } })
@@ -127,7 +154,7 @@ exports.addSession = (req, res) => {
 // Deletes a client by ID
 exports.delete = (req, res) => {
   // Update the group clients array to remove this client
-  Group.findOneAndUpdate({ groupname: req.body.userGroup }, { $pull: { clients: req.body.clientId } })
+  Group.findOneAndUpdate({ groupname: req.body.groupname }, { $pull: { clients: req.body.clientId } })
     .catch(err => {
       if (err.kind === 'ObjectId' || err.name === 'NotFound') {
         return res.status(404).send({
@@ -141,6 +168,11 @@ exports.delete = (req, res) => {
 
   // Delete the client from the clients db
   Client.findOneAndDelete({ _id: req.body.clientId })
+    .then(() => {
+      res.status(200).send({
+        success: `Successfully deleted client ${req.body.clientId}`
+      })
+    })
     .catch(err => {
       if (err.kind === 'ObjectId' || err.name === 'NotFound') {
         return res.status(404).send({

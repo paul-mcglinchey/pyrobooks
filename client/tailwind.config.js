@@ -1,12 +1,28 @@
+const colors = require('./node_modules/tailwindcss/colors');
+
 module.exports = {
   purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
       colors: {
-        purple: {
-          brand: '#7025ffff'
-        }
+        zinc: colors.zinc,
+        slate: colors.slate,
+        neutral: colors.neutral,
+        gray: colors.gray,
+        stone: colors.stone,
+      },
+      minHeight: {
+        '96': '40rem'
+      },
+      scale: {
+        '102': '1.02',
+      },
+      animation: {
+        'spin-slow': 'spin 2s linear infinite'
+      },
+      transitionProperty: {
+        'fill': 'fill'
       }
     },
     fontFamily: {
@@ -27,7 +43,8 @@ module.exports = {
   variants: {
     extend: {
       rotate: ['group-hover'],
-      animation: ['hover']
+      animation: ['hover'],
+      fill: ['hover']
     },
   },
   plugins: [],

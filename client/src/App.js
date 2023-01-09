@@ -1,25 +1,44 @@
 import { useState } from 'react';
-import Dashboard from './components/Dashboard.js';
-import Login from './components/Login.js';
+import Userfront from "@userfront/core";
+import { activeLinkHelper } from './utilities';
+
 import {
   Routes,
   Route,
   Navigate,
   useLocation
 } from 'react-router-dom';
-import Signup from './components/Signup.js';
-import Userfront from "@userfront/core";
-import PasswordResetRequest from './components/PasswordResetRequest.js';
-import PasswordReset from './components/PasswordReset.js';
-import AddNewClient from './components/AddNewClient.js';
-import NavMenu from './components/NavMenu';
-import getGroups from './fetches/getGroups.js';
-import Groups from './components/Groups.js';
+
+import {
+  Dashboard,
+  NavMenu,
+  AddNewClient,
+  Groups,
+  CreateGroup,
+  Login,
+  Signup,
+  PasswordReset,
+  PasswordResetRequest
+} from './components';
+
 
 export default function App() {
 
-  const [groups, setGroups] = useState([]);
-  const [userGroup, setUserGroup] = useState();
+  const getUserInStorage = () => {
+    try {
+      return JSON.parse(sessionStorage.getItem("userGroup"));
+    } catch {
+      return null;
+    }
+  }
+
+  const [status, setStatus] = useState({
+    isLoading: false,
+    success: '',
+    error: ''
+  });
+
+  const [userGroup, setUserGroup] = useState(getUserInStorage());
 
   const location = useLocation();
 
@@ -27,14 +46,13 @@ export default function App() {
     return Userfront.accessToken() ? children : <Navigate to="/login" state={{ from: location }} />;
   }
 
+  activeLinkHelper.setActiveLink(location);
+
   return (
-    <div>
-      <NavMenu
-        getGroups={() => getGroups(setGroups, userGroup, setUserGroup)}
-        userGroup={userGroup}
-        setUserGroup={setUserGroup}
-        groups={groups}
-      />
+    <div className="min-h-screen">
+      {Userfront.accessToken() && (
+        <NavMenu />
+      )}
       <div className="font-sans subpixel-antialiased px-2 sm:px-6 lg:px-8">
         <Routes>
           <Route
@@ -47,8 +65,9 @@ export default function App() {
               <PrivateRoute>
                 <Dashboard
                   userGroup={userGroup}
-                  getGroups={() => getGroups(setGroups, userGroup, setUserGroup)}
-                  groups={groups}
+                  setUserGroup={setUserGroup}
+                  status={status}
+                  setStatus={setStatus}
                 />
               </PrivateRoute>
             }
@@ -56,17 +75,40 @@ export default function App() {
           <Route
             path="addclients"
             element={
-              <AddNewClient
-                userGroup={userGroup}
-              />
+              <PrivateRoute>
+                <AddNewClient
+                  userGroup={userGroup}
+                  setUserGroup={setUserGroup}
+                  status={status}
+                  setStatus={setStatus}
+                />
+              </PrivateRoute>
             }
           />
           <Route
             path="groups"
             element={
-              <Groups
-                getGroups={() => getGroups(setGroups, userGroup, setUserGroup)}
-              />
+              <PrivateRoute>
+                <Groups
+                  userGroup={userGroup}
+                  setUserGroup={setUserGroup}
+                  status={status}
+                  setStatus={setStatus}
+                />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="creategroup"
+            element={
+              <PrivateRoute>
+                <CreateGroup
+                  userGroup={userGroup}
+                  setUserGroup={setUserGroup}
+                  status={status}
+                  setStatus={setStatus}
+                />
+              </PrivateRoute>
             }
           />
           <Route
@@ -95,6 +137,6 @@ export default function App() {
           />
         </Routes>
       </div>
-    </div>
+    </div >
   );
 }

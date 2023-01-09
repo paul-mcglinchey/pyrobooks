@@ -4,9 +4,6 @@ module.exports = app => {
 
   var router = require('express').Router();
 
-  // Get maximum number of pages of clients
-  router.get('/pagesofclients', clients.maxNumberOfPages);
-
   // Get all clients
   router.get('/', clients.findAll);
 
@@ -14,7 +11,7 @@ module.exports = app => {
   router.use(middleware.validation.validateRequest);
 
   // Create a new client
-  router.post('/', middleware.createClient.isUserGroupSetSet, clients.create);
+  router.post('/', middleware.createClient.isGroupNameSet, clients.create);
 
   // Delete a client by id
   router.delete('/', clients.delete);

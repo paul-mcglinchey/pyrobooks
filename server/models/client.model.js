@@ -43,7 +43,15 @@ const Client = mongoose.model(
     address: AddressSchema,
     birthdate: { type: Date, required: true },
     contactInfo: ContactInfoSchema,
-    sessions: [SessionSchema]
+    sessions: [SessionSchema],
+    createdBy: {
+      uuid: { type: String },
+      name: { type: String }
+    },
+    updatedBy: {
+      uuid: { type: String },
+      name: { type: String }
+    }
   }, { timestamps: true })
 );
 
